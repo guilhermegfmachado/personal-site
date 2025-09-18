@@ -1,0 +1,355 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Guilherme Machado - Musician</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 18px;
+            background-color: #ffffff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 60px 20px 20px 20px;
+            background-color: #ffffff;
+            color: #000000;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+        .lang-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+        }
+        .lang-selector a {
+            margin-left: 10px;
+            color: #000000;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+        .lang-selector a:hover {
+            text-decoration: underline;
+            background-color: #333333;
+            color: #ffffff;
+        }
+        .lang-selector a.active {
+            background-color: #333333;
+            color: #ffffff;
+        }
+        .content {
+            background-color: #d6eaff;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            width: 90%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .content a {
+            color: #000000;
+            text-decoration: none;
+        }
+        .content a:hover {
+            text-decoration: underline;
+            background-color: #b3cde0;
+        }
+        .content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .content ul li {
+            margin: 5px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #000000;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .content {
+                width: 95%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: left;
+            }
+            .lang-selector {
+                top: 10px;
+                right: 10px;
+            }
+            .header {
+                padding-top: 50px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 id="header-title">Guilherme Machado - Musician</h1>
+        <div class="lang-selector">
+            <a onclick="changeLanguage('en')" id="lang-en">EN</a>
+            <a onclick="changeLanguage('fr')" id="lang-fr">FR</a>
+            <a onclick="changeLanguage('it')" id="lang-it">IT</a>
+            <a onclick="changeLanguage('pt')" id="lang-pt">PT</a>
+            <a onclick="changeLanguage('zh')" id="lang-zh">ZH</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="content">
+            <h2 id="content-title">Projects</h2>
+            <p id="content-desc">
+                Played guitar in the recordings below, ranging from folk (Raposa Branca, Roncos) to black-metal (Fórnea) and noise-rock (Finje).<br><br>
+                <a href="https://www.youtube.com/watch?v=zz2jqBCUJZE">Fórnea - Santuário de Endovélico (2024)</a><br>
+                <a href="https://www.youtube.com/watch?v=ZiKX2p4IUz0">Fórnea - Obscura Primal (2024)</a><br>
+                <a href="https://www.youtube.com/watch?v=B1BTrPG6ke8">Roncos - Viola para Fins de Ascensão (2024)</a><br>
+                <a href="https://www.youtube.com/watch?v=LLEQCChC72Y">Finje - S/T (2024)</a><br>
+                <a href="https://machado.bandcamp.com/album/scritti-politici-dei-miei-ventanni">Raposa Branca - Scritti Politici Dei Miei Vent'Anni (2024)</a><br>
+                <a href="https://www.youtube.com/watch?v=4U9AVAl1rAs">Finje - II (2023)</a><br>
+                <a href="https://www.youtube.com/watch?v=iaeJURk7MB4">Roncos (2023 - ao vivo no KOT)</a><br>
+                <a href="https://www.youtube.com/watch?v=dnu9JjLT4Fo">Raposa Branca - A Voz Vem Depois (2023)</a><br>
+                <a href="https://www.youtube.com/watch?v=Ey_-yCTORUg">Roncos - Se Alguém Souber, Eram Os Vizinhos (2023)</a><br>
+                <a href="https://www.youtube.com/watch?v=i9ZEhSxm-PE">Finje - I (2023)</a><br>
+                <a href="https://www.youtube.com/watch?v=zO61Wcba2Go">Raposa Branca - Improv Pra Árvore (2022)</a><br><br>
+                Gigs @<br>
+                <ul>
+                    <li>Interpress</li>
+                    <li>Kot</li>
+                    <li>Espaço Lisa</li>
+                    <li>ZDB</li>
+                    <li>Musicbox com Slumlord</li>
+                    <li>Damas</li>
+                </ul>
+            </p>
+            <a href="index.html" class="back-link" id="back-link">Back to Home</a>
+        </div>
+    </div>
+    <script>
+        const translations = {
+            en: {
+                pageTitle: "Guilherme Machado - Musician",
+                header: "Guilherme Machado - Musician",
+                contentTitle: "Projects",
+                contentDesc: `
+                    Played guitar in the recordings below, ranging from folk (Raposa Branca, Roncos) to black-metal (Fórnea) and noise-rock (Finje).<br><br>
+                    <a href="https://www.youtube.com/watch?v=zz2jqBCUJZE">Fórnea - Santuário de Endovélico (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=ZiKX2p4IUz0">Fórnea - Obscura Primal (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=B1BTrPG6ke8">Roncos - Viola para Fins de Ascensão (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=LLEQCChC72Y">Finje - S/T (2024)</a><br>
+                    <a href="https://machado.bandcamp.com/album/scritti-politici-dei-miei-ventanni">Raposa Branca - Scritti Politici Dei Miei Vent'Anni (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=4U9AVAl1rAs">Finje - II (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=iaeJURk7MB4">Roncos (2023 - ao vivo no KOT)</a><br>
+                    <a href="https://www.youtube.com/watch?v=dnu9JjLT4Fo">Raposa Branca - A Voz Vem Depois (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=Ey_-yCTORUg">Roncos - Se Alguém Souber, Eram Os Vizinhos (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=i9ZEhSxm-PE">Finje - I (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=zO61Wcba2Go">Raposa Branca - Improv Pra Árvore (2022)</a><br><br>
+                    Gigs @<br>
+                    <ul>
+                        <li>Interpress</li>
+                        <li>Kot</li>
+                        <li>Espaço Lisa</li>
+                        <li>ZDB</li>
+                        <li>Musicbox com Slumlord</li>
+                        <li>Damas</li>
+                    </ul>
+                `,
+                backLink: "Back to Home"
+            },
+            fr: {
+                pageTitle: "Guilherme Machado - Musicien",
+                header: "Guilherme Machado - Musicien",
+                contentTitle: "Projets",
+                contentDesc: `
+                    Joué de la guitare dans les enregistrements ci-dessous, allant du folk (Raposa Branca, Roncos) au black-metal (Fórnea) et au noise-rock (Finje).<br><br>
+                    <a href="https://www.youtube.com/watch?v=zz2jqBCUJZE">Fórnea - Santuário de Endovélico (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=ZiKX2p4IUz0">Fórnea - Obscura Primal (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=B1BTrPG6ke8">Roncos - Viola para Fins de Ascensão (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=LLEQCChC72Y">Finje - S/T (2024)</a><br>
+                    <a href="https://machado.bandcamp.com/album/scritti-politici-dei-miei-ventanni">Raposa Branca - Scritti Politici Dei Miei Vent'Anni (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=4U9AVAl1rAs">Finje - II (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=iaeJURk7MB4">Roncos (2023 - ao vivo no KOT)</a><br>
+                    <a href="https://www.youtube.com/watch?v=dnu9JjLT4Fo">Raposa Branca - A Voz Vem Depois (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=Ey_-yCTORUg">Roncos - Se Alguém Souber, Eram Os Vizinhos (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=i9ZEhSxm-PE">Finje - I (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=zO61Wcba2Go">Raposa Branca - Improv Pra Árvore (2022)</a><br><br>
+                    Concerts @<br>
+                    <ul>
+                        <li>Interpress</li>
+                        <li>Kot</li>
+                        <li>Espaço Lisa</li>
+                        <li>ZDB</li>
+                        <li>Musicbox com Slumlord</li>
+                        <li>Damas</li>
+                    </ul>
+                `,
+                backLink: "Retour à l'accueil"
+            },
+            it: {
+                pageTitle: "Guilherme Machado - Musicista",
+                header: "Guilherme Machado - Musicista",
+                contentTitle: "Progetti",
+                contentDesc: `
+                    Suonato la chitarra nelle registrazioni qui sotto, che spaziano dal folk (Raposa Branca, Roncos) al black-metal (Fórnea) e al noise-rock (Finje).<br><br>
+                    <a href="https://www.youtube.com/watch?v=zz2jqBCUJZE">Fórnea - Santuário de Endovélico (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=ZiKX2p4IUz0">Fórnea - Obscura Primal (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=B1BTrPG6ke8">Roncos - Viola para Fins de Ascensão (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=LLEQCChC72Y">Finje - S/T (2024)</a><br>
+                    <a href="https://machado.bandcamp.com/album/scritti-politici-dei-miei-ventanni">Raposa Branca - Scritti Politici Dei Miei Vent'Anni (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=4U9AVAl1rAs">Finje - II (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=iaeJURk7MB4">Roncos (2023 - ao vivo no KOT)</a><br>
+                    <a href="https://www.youtube.com/watch?v=dnu9JjLT4Fo">Raposa Branca - A Voz Vem Depois (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=Ey_-yCTORUg">Roncos - Se Alguém Souber, Eram Os Vizinhos (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=i9ZEhSxm-PE">Finje - I (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=zO61Wcba2Go">Raposa Branca - Improv Pra Árvore (2022)</a><br><br>
+                    Concerti @<br>
+                    <ul>
+                        <li>Interpress</li>
+                        <li>Kot</li>
+                        <li>Espaço Lisa</li>
+                        <li>ZDB</li>
+                        <li>Musicbox com Slumlord</li>
+                        <li>Damas</li>
+                    </ul>
+                `,
+                backLink: "Torna alla home"
+            },
+            pt: {
+                pageTitle: "Guilherme Machado - Músico",
+                header: "Guilherme Machado - Músico",
+                contentTitle: "Projetos",
+                contentDesc: `
+                    Toquei guitarra nas gravações abaixo, que vão do folk (Raposa Branca, Roncos) ao black-metal (Fórnea) e noise-rock (Finje).<br><br>
+                    <a href="https://www.youtube.com/watch?v=zz2jqBCUJZE">Fórnea - Santuário de Endovélico (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=ZiKX2p4IUz0">Fórnea - Obscura Primal (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=B1BTrPG6ke8">Roncos - Viola para Fins de Ascensão (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=LLEQCChC72Y">Finje - S/T (2024)</a><br>
+                    <a href="https://machado.bandcamp.com/album/scritti-politici-dei-miei-ventanni">Raposa Branca - Scritti Politici Dei Miei Vent'Anni (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=4U9AVAl1rAs">Finje - II (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=iaeJURk7MB4">Roncos (2023 - ao vivo no KOT)</a><br>
+                    <a href="https://www.youtube.com/watch?v=dnu9JjLT4Fo">Raposa Branca - A Voz Vem Depois (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=Ey_-yCTORUg">Roncos - Se Alguém Souber, Eram Os Vizinhos (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=i9ZEhSxm-PE">Finje - I (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=zO61Wcba2Go">Raposa Branca - Improv Pra Árvore (2022)</a><br><br>
+                    Apresentações @<br>
+                    <ul>
+                        <li>Interpress</li>
+                        <li>Kot</li>
+                        <li>Espaço Lisa</li>
+                        <li>ZDB</li>
+                        <li>Musicbox com Slumlord</li>
+                        <li>Damas</li>
+                    </ul>
+                `,
+                backLink: "Voltar para a página inicial"
+            },
+            zh: {
+                pageTitle: "Guilherme Machado - 音乐家",
+                header: "Guilherme Machado - 音乐家",
+                contentTitle: "项目",
+                contentDesc: `
+                    在以下录音中弹奏吉他，涵盖了民谣（Raposa Branca、Roncos）、黑金属（Fórnea）和噪音摇滚（Finje）。<br><br>
+                    <a href="https://www.youtube.com/watch?v=zz2jqBCUJZE">Fórnea - Santuário de Endovélico (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=ZiKX2p4IUz0">Fórnea - Obscura Primal (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=B1BTrPG6ke8">Roncos - Viola para Fins de Ascensão (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=LLEQCChC72Y">Finje - S/T (2024)</a><br>
+                    <a href="https://machado.bandcamp.com/album/scritti-politici-dei-miei-ventanni">Raposa Branca - Scritti Politici Dei Miei Vent'Anni (2024)</a><br>
+                    <a href="https://www.youtube.com/watch?v=4U9AVAl1rAs">Finje - II (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=iaeJURk7MB4">Roncos (2023 - ao vivo no KOT)</a><br>
+                    <a href="https://www.youtube.com/watch?v=dnu9JjLT4Fo">Raposa Branca - A Voz Vem Depois (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=Ey_-yCTORUg">Roncos - Se Alguém Souber, Eram Os Vizinhos (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=i9ZEhSxm-PE">Finje - I (2023)</a><br>
+                    <a href="https://www.youtube.com/watch?v=zO61Wcba2Go">Raposa Branca - Improv Pra Árvore (2022)</a><br><br>
+                    演出 @<br>
+                    <ul>
+                        <li>Interpress</li>
+                        <li>Kot</li>
+                        <li>Espaço Lisa</li>
+                        <li>ZDB</li>
+                        <li>Musicbox com Slumlord</li>
+                        <li>Damas</li>
+                    </ul>
+                `,
+                backLink: "返回首页"
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('language', lang);
+            document.getElementById('page-title').textContent = translations[lang].pageTitle;
+            document.getElementById('header-title').textContent = translations[lang].header;
+            document.getElementById('content-title').textContent = translations[lang].contentTitle;
+            document.getElementById('content-desc').innerHTML = translations[lang].contentDesc;
+            document.getElementById('back-link').textContent = translations[lang].backLink;
+
+            // Update active class
+            document.querySelectorAll('.lang-selector a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(`lang-${lang}`).classList.add('active');
+        }
+
+        // Load saved language or default to English
+        const savedLang = localStorage.getItem('language') || 'en';
+        changeLanguage(savedLang);
+    </script>
+</body>
+</html>
