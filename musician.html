@@ -1,0 +1,202 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Guilherme Machado - Musician</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 18px;
+            background-color: #ffffff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 60px 20px 20px 20px; /* Increased top padding to match index.html */
+            background-color: #ffffff;
+            color: #000000;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+        .lang-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+        }
+        .lang-selector a {
+            margin-left: 10px;
+            color: #000000;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+        .lang-selector a:hover {
+            text-decoration: underline;
+            background-color: #333333;
+            color: #ffffff;
+        }
+        .lang-selector a.active {
+            background-color: #333333;
+            color: #ffffff;
+        }
+        .content {
+            background-color: #d6eaff;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #000000;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .content {
+                width: 95%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .lang-selector {
+                top: 10px;
+                right: 10px;
+            }
+            .header {
+                padding-top: 50px; /* Ensure title stays below language selector */
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 id="header-title">Guilherme Machado - Musician</h1>
+        <div class="lang-selector">
+            <a onclick="changeLanguage('en')" id="lang-en">EN</a>
+            <a onclick="changeLanguage('fr')" id="lang-fr">FR</a>
+            <a onclick="changeLanguage('it')" id="lang-it">IT</a>
+            <a onclick="changeLanguage('pt')" id="lang-pt">PT</a>
+            <a onclick="changeLanguage('zh')" id="lang-zh">ZH</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="content">
+            <h2 id="content-title">Music Experience</h2>
+            <p id="content-desc">Add your music experience here. For example, list instruments, performances, recordings, or bands you've worked with.</p>
+            <a href="index.html" class="back-link" id="back-link">Back to Home</a>
+        </div>
+    </div>
+    <script>
+        const translations = {
+            en: {
+                pageTitle: "Guilherme Machado - Musician",
+                header: "Guilherme Machado - Musician",
+                contentTitle: "Music Experience",
+                contentDesc: "Add your music experience here. For example, list instruments, performances, recordings, or bands you've worked with.",
+                backLink: "Back to Home"
+            },
+            fr: {
+                pageTitle: "Guilherme Machado - Musicien",
+                header: "Guilherme Machado - Musicien",
+                contentTitle: "Expérience musicale",
+                contentDesc: "Ajoutez votre expérience musicale ici. Par exemple, listez les instruments, les performances, les enregistrements ou les groupes avec lesquels vous avez travaillé.",
+                backLink: "Retour à l'accueil"
+            },
+            it: {
+                pageTitle: "Guilherme Machado - Musicista",
+                header: "Guilherme Machado - Musicista",
+                contentTitle: "Esperienza musicale",
+                contentDesc: "Aggiungi qui la tua esperienza musicale. Ad esempio, elenca gli strumenti, le performance, le registrazioni o le band con cui hai lavorato.",
+                backLink: "Torna alla home"
+            },
+            pt: {
+                pageTitle: "Guilherme Machado - Músico",
+                header: "Guilherme Machado - Músico",
+                contentTitle: "Experiência Musical",
+                contentDesc: "Adicione sua experiência musical aqui. Por exemplo, liste instrumentos, apresentações, gravações ou bandas com as quais trabalhou.",
+                backLink: "Voltar para a página inicial"
+            },
+            zh: {
+                pageTitle: "Guilherme Machado - 音乐家",
+                header: "Guilherme Machado - 音乐家",
+                contentTitle: "音乐经验",
+                contentDesc: "在此添加您的音乐经验。例如，列出乐器、表演、录音或合作过的乐队。",
+                backLink: "返回首页"
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('language', lang);
+            document.getElementById('page-title').textContent = translations[lang].pageTitle;
+            document.getElementById('header-title').textContent = translations[lang].header;
+            document.getElementById('content-title').textContent = translations[lang].contentTitle;
+            document.getElementById('content-desc').textContent = translations[lang].contentDesc;
+            document.getElementById('back-link').textContent = translations[lang].backLink;
+
+            // Update active class
+            document.querySelectorAll('.lang-selector a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(`lang-${lang}`).classList.add('active');
+        }
+
+        // Load saved language or default to English
+        const savedLang = localStorage.getItem('language') || 'en';
+        changeLanguage(savedLang);
+    </script>
+</body>
+</html>
