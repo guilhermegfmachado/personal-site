@@ -1,0 +1,260 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Guilherme Machado - Professor</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 18px;
+            background-color: #ffffff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 60px 20px 10px 20px;
+            background-color: #ffffff;
+            color: #000000;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin: 0 0 5px 0;
+        }
+        .lang-selector {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 14px;
+        }
+        .lang-selector a {
+            margin-left: 10px;
+            color: #000000;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+        .lang-selector a:hover {
+            text-decoration: underline;
+            background-color: #333333;
+            color: #ffffff;
+        }
+        .lang-selector a.active {
+            background-color: #333333;
+            color: #ffffff;
+        }
+        .header-info {
+            text-align: center;
+            margin-top: 0;
+        }
+        .header-info p {
+            margin: 0;
+        }
+        .header-info .based-in {
+            margin-bottom: 10px;
+        }
+        .header-info a {
+            color: #000000;
+            text-decoration: none;
+        }
+        .header-info a:hover {
+            text-decoration: underline;
+        }
+        .content {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .content h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #000000;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .lang-selector {
+                top: 5px;
+                right: 10px;
+            }
+            .header {
+                padding-top: 50px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 id="header-title">Guilherme Machado</h1>
+        <div class="lang-selector">
+            <a onclick="changeLanguage('pt')" id="lang-pt">PT</a>
+            <a onclick="changeLanguage('en')" id="lang-en">EN</a>
+            <a onclick="changeLanguage('es')" id="lang-es">ES</a>
+            <a onclick="changeLanguage('fr')" id="lang-fr">FR</a>
+            <a onclick="changeLanguage('it')" id="lang-it">IT</a>
+            <a onclick="changeLanguage('de')" id="lang-de">DE</a>
+            <a onclick="changeLanguage('ja')" id="lang-ja">JA</a>
+            <a onclick="changeLanguage('zh')" id="lang-zh">ZH</a>
+        </div>
+    </div>
+    <div class="header-info">
+        <p id="based-in-text" class="based-in">Baseado em Torres Vedras, Portugal</p>
+        <p><a href="mailto:guilhermegfmachado@gmail.com" id="contact-text">guilhermegfmachado@gmail.com</a></p>
+    </div>
+    <div class="container">
+        <div class="content">
+            <h2 id="content-title">Professor</h2>
+            <p id="content-text">Conteúdo sobre atividades de ensino será adicionado aqui.</p>
+            <a href="index.html" id="back-link" class="back-link">Voltar</a>
+        </div>
+    </div>
+    <script>
+        const translations = {
+            pt: {
+                pageTitle: "Guilherme Machado - Professor",
+                header: "Guilherme Machado",
+                basedIn: "Baseado em Torres Vedras, Portugal",
+                contentTitle: "Professor",
+                contentText: "Conteúdo sobre atividades de ensino será adicionado aqui.",
+                backLink: "Voltar",
+                contact: "guilhermegfmachado@gmail.com"
+            },
+            en: {
+                pageTitle: "Guilherme Machado - Teacher",
+                header: "Guilherme Machado",
+                basedIn: "Based in Torres Vedras, Portugal",
+                contentTitle: "Teacher",
+                contentText: "Content about teaching activities will be added here.",
+                backLink: "Back",
+                contact: "guilhermegfmachado@gmail.com"
+            },
+            es: {
+                pageTitle: "Guilherme Machado - Profesor",
+                header: "Guilherme Machado",
+                basedIn: "Con sede en Torres Vedras, Portugal",
+                contentTitle: "Profesor",
+                contentText: "El contenido sobre actividades de enseñanza se añadirá aquí.",
+                backLink: "Volver",
+                contact: "guilhermegfmachado@gmail.com"
+            },
+            fr: {
+                pageTitle: "Guilherme Machado - Professeur",
+                header: "Guilherme Machado",
+                basedIn: "Basé à Torres Vedras, Portugal",
+                contentTitle: "Professeur",
+                contentText: "Le contenu sur les activités d'enseignement sera ajouté ici.",
+                backLink: "Retour",
+                contact: "guilhermegfmachado@gmail.com"
+            },
+            it: {
+                pageTitle: "Guilherme Machado - Insegnante",
+                header: "Guilherme Machado",
+                basedIn: "Con sede a Torres Vedras, Portogallo",
+                contentTitle: "Insegnante",
+                contentText: "Il contenuto sulle attività di insegnamento verrà aggiunto qui.",
+                backLink: "Indietro",
+                contact: "guilhermegfmachado@gmail.com"
+            },
+            de: {
+                pageTitle: "Guilherme Machado - Lehrer",
+                header: "Guilherme Machado",
+                basedIn: "Ansässig in Torres Vedras, Portugal",
+                contentTitle: "Lehrer",
+                contentText: "Inhalte über Unterrichtsaktivitäten werden hier hinzugefügt.",
+                backLink: "Zurück",
+                contact: "guilhermegfmachado@gmail.com"
+            },
+            ja: {
+                pageTitle: "ギレルメ・マチャド - 教師",
+                header: "ギレルメ・マチャド",
+                basedIn: "ポルトガル、トーレス・ヴェドラス在住",
+                contentTitle: "教師",
+                contentText: "教育活動に関するコンテンツはここに追加されます。",
+                backLink: "戻る",
+                contact: "guilhermegfmachado@gmail.com"
+            },
+            zh: {
+                pageTitle: "Guilherme Machado - 教师",
+                header: "Guilherme Machado",
+                basedIn: "常驻葡萄牙托雷斯韦德拉什",
+                contentTitle: "教师",
+                contentText: "关于教学活动的内容将在这里添加。",
+                backLink: "返回",
+                contact: "guilhermegfmachado@gmail.com"
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('language', lang);
+            document.getElementById('page-title').textContent = translations[lang].pageTitle;
+            document.getElementById('header-title').textContent = translations[lang].header;
+            document.getElementById('based-in-text').textContent = translations[lang].basedIn;
+            document.getElementById('content-title').textContent = translations[lang].contentTitle;
+            document.getElementById('content-text').textContent = translations[lang].contentText;
+            document.getElementById('back-link').textContent = translations[lang].backLink;
+            document.getElementById('contact-text').textContent = translations[lang].contact;
+
+            document.querySelectorAll('.lang-selector a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(`lang-${lang}`).classList.add('active');
+        }
+
+        const savedLang = localStorage.getItem('language') || 'pt';
+        changeLanguage(savedLang);
+    </script>
+</body>
+</html>
